@@ -37,7 +37,8 @@ export const useCacheService = (repo: MetricRepository) => {
       `${url}/${spreadsheetId}/values/${rangeName}?key=${apiKey}`
     );
     const data = await res.json();
-    await metricMapper.mapCsvToMetricSchema(data.values, repo.insertMetric);
+    const metrics = metricMapper.mapCsvToMetricSchema(data.values);
+    await repo.insertMetrics(metrics);
     state.lastCacheTime = Math.floor(Date.now() / 1000);
   };
 
@@ -47,8 +48,12 @@ export const useCacheService = (repo: MetricRepository) => {
   };
 
   const resetCache = async () => {
+    console.log("Resetting cache...");
     await deleteCache();
+    console.log("Cache reset!");
+    console.log("Setting cache...");
     await setCache();
+    console.log("Cache set!");
   };
 
   return {
