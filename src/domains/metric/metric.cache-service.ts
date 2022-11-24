@@ -1,3 +1,4 @@
+import { AppVariables } from "../../config/variables.enum.ts";
 import type { MetricRepository } from "./metric.repo.ts";
 import { getRequiredEnv } from "../../config/env.ts";
 import { useMetricMapper } from "./metric.mapper.ts";
@@ -13,8 +14,13 @@ export const useCacheService = (repo: MetricRepository) => {
 
   const state = {
     lastCacheTime: 0,
-    cacheTimeout: getRequiredEnv<number>("CACHE_TIMEOUT"),
+    cacheTimeout: getRequiredEnv<number>(AppVariables.CACHE_TIMEOUT),
   };
+
+  const url = getRequiredEnv<string>(AppVariables.SPREADSHEET_URL);
+  const apiKey = getRequiredEnv<string>(AppVariables.SPREADSHEET_API_KEY);
+  const rangeName = getRequiredEnv<string>(AppVariables.SPREADSHEET_RANGE_NAME);
+  const spreadsheetId = getRequiredEnv<string>(AppVariables.SPREADSHEET_ID);
 
   const checkCache = async () => {
     if (
@@ -29,7 +35,7 @@ export const useCacheService = (repo: MetricRepository) => {
 
   const setCache = async () => {
     const res = await fetch(
-      "https://sheets.googleapis.com/v4/spreadsheets/1frVzuJCImzpP-zEhSrzuQGV0rUp3mFxV5OfG0z1UZYg/values/Dataset?key=AIzaSyBT1Ocw5s5H07w1T2_FSejqCEEhbZTvSME"
+      `${url}/${spreadsheetId}/values/${rangeName}?key=${apiKey}`
     );
     const data = await res.json();
     await metricMapper.mapCsvToMetricSchema(data.values, repo.insertMetric);
