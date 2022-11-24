@@ -1,5 +1,18 @@
 import { MetricSchema } from "./metric.schema.ts";
-export const useMetricMapper = () => {
+
+export type MetricMapper = {
+  mapCsvToMetricSchema: (
+    csv: any[],
+    eachCallback: (schema: MetricSchema) => Promise<unknown>
+  ) => Promise<MetricSchema[]>;
+};
+
+const MetricParsers: Record<string, (val: string) => unknown> = {
+  event_time: (value: string) => new Date(value),
+  price: (value: string) => parseFloat(value),
+};
+
+export const useMetricMapper = (): MetricMapper => {
   const mapCsvToMetricSchema = (
     csv: any[],
     eachCallback: (schema: MetricSchema) => Promise<unknown>
@@ -23,9 +36,4 @@ export const useMetricMapper = () => {
   return {
     mapCsvToMetricSchema,
   };
-};
-
-const MetricParsers: Record<string, (val: string) => unknown> = {
-  event_time: (value: string) => new Date(value),
-  price: (value: string) => parseFloat(value),
 };
