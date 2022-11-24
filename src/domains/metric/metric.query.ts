@@ -1,5 +1,6 @@
+import { Metric, NetRevenueQueryParams } from "./metric.types.ts";
+
 import type { AggregatePipeline } from "https://deno.land/x/mongo@v0.31.1/mod.ts";
-import { Metric } from "./metric.types.ts";
 import { MetricSchema } from "./metric.schema.ts";
 
 type QueryCreatorAndMapper = {
@@ -94,7 +95,7 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
     },
   },
   "net-revenue": {
-    queryCreator: (params: { startDate: string; endDate: string }) => [
+    queryCreator: (params: NetRevenueQueryParams) => [
       {
         $match: {
           event_type: { $in: ["purchase", "refund"] },
@@ -120,7 +121,7 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
         },
       },
     ],
-    mapper: (obj: any, params: { startDate: string; endDate: string }) => {
+    mapper: (obj: any, params: NetRevenueQueryParams) => {
       obj.metric = "net-revenue";
       obj.dimensions = ["customer"];
       obj.aggregation = "sum";
