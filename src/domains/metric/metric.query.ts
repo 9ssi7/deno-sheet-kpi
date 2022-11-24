@@ -1,10 +1,11 @@
+import { Metric, NetRevenueQueryParams } from "./metric.types.ts";
+
 import type { AggregatePipeline } from "https://deno.land/x/mongo@v0.31.1/mod.ts";
-import { Metric } from "./metric.types.ts";
 import { MetricSchema } from "./metric.schema.ts";
 
 type QueryCreatorAndMapper = {
   queryCreator: (...params: any[]) => AggregatePipeline<MetricSchema>[];
-  mapper: (val: any) => any;
+  mapper: (val: any, ...params: any[]) => any;
 };
 
 export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
@@ -28,7 +29,7 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
       obj.aggregation = "avg";
       obj.data = {};
       return (data: any) => {
-        obj.data[data._id] = { value: data.avg };
+        obj.data[data._id] = { value: data.avg.toFixed(2) };
         return null;
       };
     },
@@ -94,7 +95,7 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
     },
   },
   "net-revenue": {
-    queryCreator: (params: { startDate: string; endDate: string }) => [
+    queryCreator: (params: NetRevenueQueryParams) => [
       {
         $match: {
           event_type: { $in: ["purchase", "refund"] },
@@ -120,10 +121,16 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
         },
       },
     ],
-    mapper: (obj: any) => {
+    mapper: (obj: any, params: NetRevenueQueryParams) => {
       obj.metric = "net-revenue";
       obj.dimensions = ["customer"];
       obj.aggregation = "sum";
+      obj.filter = {
+        date: {
+          from: params.startDate,
+          to: params.endDate,
+        },
+      };
       obj.data = {};
       return (data: any) => {
         obj.data[data._id] = {
