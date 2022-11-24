@@ -54,8 +54,44 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
     },
   },
   conversion: {
-    queryCreator: () => [],
-    mapper: (val: any) => val,
+    queryCreator: () => [
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$event_time",
+            },
+          },
+          sessions: { $addToSet: "$user_session" },
+          purchases: {
+            $addToSet: {
+              $cond: [
+                { $eq: ["$event_type", "purchase"] },
+                "$user_session",
+                null,
+              ],
+            },
+          },
+        },
+      },
+    ],
+    mapper: (obj: any) => {
+      obj.metric = "conversion";
+      obj.dimensions = ["date"];
+      obj.aggregation = "distinct";
+      obj.data = {};
+      return (data: any) => {
+        const sessions = data.sessions.filter(Boolean).length;
+        const purchases = data.purchases.filter(Boolean).length;
+        obj.data[data._id] = {
+          value: (purchases / sessions).toFixed(2),
+          sessions,
+          purchases,
+        };
+        return null;
+      };
+    },
   },
   "net-revenue": {
     queryCreator: () => [],
