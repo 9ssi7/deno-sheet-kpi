@@ -1,0 +1,25 @@
+version: "3.1"
+services:
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - ./db:/data/db:rw
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVER_PORT=${SERVER_PORT}
+    restart: always
+    environment:
+      MONGO_URI: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@mongo:27017/
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      SERVER_PORT: ${SERVER_PORT}
+    depends_on:
+      - mongo
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
