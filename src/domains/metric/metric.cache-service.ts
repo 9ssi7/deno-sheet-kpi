@@ -4,7 +4,7 @@ import { getRequiredEnv } from "../../config/env.ts";
 import { useMetricMapper } from "./metric.mapper.ts";
 
 export type MetricCacheService = {
-  checkCache: () => Promise<void>;
+  checkCache: () => Promise<boolean>;
   setCache: () => Promise<void>;
   deleteCache: () => Promise<void>;
 };
@@ -13,6 +13,7 @@ export const useCacheService = (repo: MetricRepository) => {
   const metricMapper = useMetricMapper();
 
   const state = {
+    refreshing: false,
     lastCacheTime: 0,
     cacheTimeout: getRequiredEnv<number>(AppVariables.CACHE_TIMEOUT),
   };
@@ -22,14 +23,15 @@ export const useCacheService = (repo: MetricRepository) => {
   const rangeName = getRequiredEnv<string>(AppVariables.SPREADSHEET_RANGE_NAME);
   const spreadsheetId = getRequiredEnv<string>(AppVariables.SPREADSHEET_ID);
 
-  const checkCache = async () => {
+  const checkCache = async (): Promise<boolean> => {
+    if (state.refreshing) return false;
     if (
       Math.floor(Date.now() / 1000) - state.lastCacheTime >
       state.cacheTimeout
     ) {
-      await repo.deleteAllMetrics();
-      await setCache();
+      await resetCache();
     }
+    return true;
   };
 
   const setCache = async () => {
@@ -48,13 +50,21 @@ export const useCacheService = (repo: MetricRepository) => {
   };
 
   const resetCache = async () => {
+    state.refreshing = true;
     console.log("Resetting cache...");
     await deleteCache();
     console.log("Cache reset!");
     console.log("Setting cache...");
     await setCache();
     console.log("Cache set!");
+    state.refreshing = false;
   };
+
+  resetCache();
+
+  setInterval(async () => {
+    await resetCache();
+  }, state.cacheTimeout * 1000);
 
   return {
     checkCache,
