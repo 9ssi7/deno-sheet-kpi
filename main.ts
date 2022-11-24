@@ -1,8 +1,11 @@
 import { Application } from "https://deno.land/x/oak@v11.1.0/mod.ts";
+import { connect } from "./src/database/mongo.ts";
 import { createRouter } from "./src/main.router.ts";
 import { errorHandler } from "./src/middlewares/error-handler.ts";
 
 const app = new Application();
+
+await connect();
 
 const { routes, allowedMethods, port } = createRouter();
 
