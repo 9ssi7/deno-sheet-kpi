@@ -4,7 +4,7 @@ import { MetricSchema } from "./metric.schema.ts";
 
 type QueryCreatorAndMapper = {
   queryCreator: (...params: any[]) => AggregatePipeline<MetricSchema>[];
-  mapper: (val: any) => any;
+  mapper: (val: any, ...params: any[]) => any;
 };
 
 export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
@@ -120,10 +120,16 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
         },
       },
     ],
-    mapper: (obj: any) => {
+    mapper: (obj: any, params: { startDate: string; endDate: string }) => {
       obj.metric = "net-revenue";
       obj.dimensions = ["customer"];
       obj.aggregation = "sum";
+      obj.filter = {
+        date: {
+          from: params.startDate,
+          to: params.endDate,
+        },
+      };
       obj.data = {};
       return (data: any) => {
         obj.data[data._id] = {

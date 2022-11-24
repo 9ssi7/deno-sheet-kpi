@@ -44,7 +44,7 @@ export const useMetricRepository = (): MetricRepository => {
     const resp: MetricResponse = {};
     await metricCollection
       .aggregate(MetricQuery[metric].queryCreator(...params))
-      .map(MetricQuery[metric].mapper(resp));
+      .map(MetricQuery[metric].mapper(resp, ...params));
 
     return resp;
   };
