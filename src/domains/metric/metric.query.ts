@@ -94,7 +94,43 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
     },
   },
   "net-revenue": {
-    queryCreator: () => [],
-    mapper: (val: any) => val,
+    queryCreator: (params: { startDate: string; endDate: string }) => [
+      {
+        $match: {
+          event_type: { $in: ["purchase", "refund"] },
+          event_time: {
+            $gte: new Date(params.startDate),
+            $lte: new Date(params.endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$user_id",
+          purchases: {
+            $sum: {
+              $cond: [{ $eq: ["$event_type", "purchase"] }, "$price", 0],
+            },
+          },
+          refunds: {
+            $sum: {
+              $cond: [{ $eq: ["$event_type", "refund"] }, "$price", 0],
+            },
+          },
+        },
+      },
+    ],
+    mapper: (obj: any) => {
+      obj.metric = "net-revenue";
+      obj.dimensions = ["customer"];
+      obj.aggregation = "sum";
+      obj.data = {};
+      return (data: any) => {
+        obj.data[data._id] = {
+          value: data.purchases - data.refunds,
+        };
+        return null;
+      };
+    },
   },
 };
