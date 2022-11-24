@@ -43,7 +43,7 @@ export const useMetricRepository = (): MetricRepository => {
   ): Promise<MetricResponse> => {
     const resp: MetricResponse = {};
     await metricCollection
-      .aggregate(MetricQuery[metric].queryCreator(params))
+      .aggregate(MetricQuery[metric].queryCreator(...params))
       .map(MetricQuery[metric].mapper(resp));
 
     return resp;

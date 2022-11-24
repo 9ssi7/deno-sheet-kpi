@@ -1,4 +1,4 @@
-import { type Metric, isMetric } from "./metric.types.ts";
+import { type Metric } from "./metric.types.ts";
 import { useCacheService } from "./metric.cache-service.ts";
 import { useMetricRepository } from "./metric.repo.ts";
 
@@ -8,12 +8,12 @@ export const useMetricService = () => {
 
   metricCache.resetCache();
 
-  const handleMetric = async (metric: string): Promise<any> => {
+  const handleMetric = async (
+    metric: Metric,
+    ...params: any[]
+  ): Promise<any> => {
     await metricCache.checkCache();
-    if (isMetric(metric)) {
-      return metricRepo.getAllByMetric(metric as Metric);
-    }
-    return { error: "Invalid metric" };
+    return metricRepo.getAllByMetric(metric as Metric, ...params);
   };
 
   return {
