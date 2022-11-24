@@ -8,15 +8,14 @@ export const useMetricService = () => {
 
   metricCache.resetCache();
 
-  const handleMetric = async (
-    metric: Metric,
-    ...params: any[]
-  ): Promise<any> => {
-    await metricCache.checkCache();
+  const checkCache = () => metricCache.checkCache();
+
+  const handleMetric = (metric: Metric, ...params: any[]): Promise<any> => {
     return metricRepo.getAllByMetric(metric as Metric, ...params);
   };
 
   return {
+    checkCache,
     handleMetric,
   };
 };
