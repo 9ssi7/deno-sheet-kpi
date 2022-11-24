@@ -4,7 +4,6 @@ import { MetricSchema } from "./metric.schema.ts";
 import { useDatabase } from "../../database/mongo.ts";
 
 export type MetricRepository = {
-  insertMetric: (metric: MetricSchema) => Promise<unknown>;
   insertMetrics: (metrics: MetricSchema[]) => Promise<unknown>;
   deleteAllMetrics: () => Promise<unknown>;
   getAllByMetric: (metric: Metric, ...params: any[]) => Promise<MetricResponse>;
@@ -22,10 +21,6 @@ export const useMetricRepository = (): MetricRepository => {
 
   const deleteAllMetrics = async () => {
     await metricCollection.deleteMany({});
-  };
-
-  const insertMetric = async (metric: MetricSchema) => {
-    await metricCollection.insertOne(metric);
   };
 
   const insertMetrics = async (metrics: MetricSchema[]) => {
@@ -51,7 +46,6 @@ export const useMetricRepository = (): MetricRepository => {
 
   return {
     deleteAllMetrics,
-    insertMetric,
     insertMetrics,
     getAllByMetric,
   };
