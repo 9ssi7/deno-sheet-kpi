@@ -34,8 +34,24 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
     },
   },
   sessions: {
-    queryCreator: () => [],
-    mapper: (val: any) => val,
+    queryCreator: () => [
+      {
+        $group: {
+          _id: { $week: "$event_time" },
+          sessions: { $addToSet: "$user_session" },
+        },
+      },
+    ],
+    mapper: (obj: any) => {
+      obj.metric = "sessions";
+      obj.dimensions = ["date.weeknum"];
+      obj.aggregation = "distinct";
+      obj.data = {};
+      return (data: any) => {
+        obj.data[data._id] = { value: data.sessions.length };
+        return null;
+      };
+    },
   },
   conversion: {
     queryCreator: () => [],
