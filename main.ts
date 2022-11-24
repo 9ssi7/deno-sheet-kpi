@@ -1,8 +1,14 @@
-export function add(a: number, b: number): number {
-  return a + b;
-}
+import { Application } from "https://deno.land/x/oak@v11.1.0/mod.ts";
+import { createRouter } from "./src/main.router.ts";
+import { errorHandler } from "./src/middlewares/error-handler.ts";
 
-// Learn more at https://deno.land/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  console.log("Add 2 + 3 =", add(2, 3));
-}
+const app = new Application();
+
+const { routes, allowedMethods, port } = createRouter();
+
+app.use(errorHandler);
+app.use(routes);
+app.use(allowedMethods);
+
+console.log("Listening at http://localhost:" + port);
+await app.listen({ port: port });
