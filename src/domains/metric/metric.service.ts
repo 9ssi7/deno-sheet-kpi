@@ -6,14 +6,12 @@ export const useMetricService = () => {
   const metricRepo = useMetricRepository();
   const metricCache = useCacheService(metricRepo);
 
-  metricCache.resetCache();
-
   const checkCache = () => metricCache.checkCache();
 
   const handleMetric = (metric: Metric, ...params: any[]): Promise<any> => {
     return metricRepo.getAllByMetric(metric as Metric, ...params);
   };
-
+  
   return {
     checkCache,
     handleMetric,

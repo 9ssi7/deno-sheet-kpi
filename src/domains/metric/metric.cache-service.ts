@@ -29,8 +29,7 @@ export const useCacheService = (repo: MetricRepository) => {
       Math.floor(Date.now() / 1000) - state.lastCacheTime >
       state.cacheTimeout
     ) {
-      await repo.deleteAllMetrics();
-      await setCache();
+      await resetCache();
     }
     return true;
   };
@@ -60,6 +59,12 @@ export const useCacheService = (repo: MetricRepository) => {
     console.log("Cache set!");
     state.refreshing = false;
   };
+
+  resetCache();
+
+  setInterval(async () => {
+    await resetCache();
+  }, state.cacheTimeout * 1000);
 
   return {
     checkCache,
