@@ -19,6 +19,7 @@ services:
       MONGO_URI: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@mongo:27017/
       MONGO_DB_NAME: ${MONGO_DB_NAME}
       SERVER_PORT: ${SERVER_PORT}
+      CACHE_TIMEOUT: ${CACHE_TIMEOUT}
     depends_on:
       - mongo
     ports:
