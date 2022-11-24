@@ -28,7 +28,6 @@ export const useCacheService = (repo: MetricRepository) => {
       state.cacheTimeout
     ) {
       await repo.deleteAllMetrics();
-      state.lastCacheTime = Math.floor(Date.now() / 1000);
       await setCache();
     }
   };
@@ -39,15 +38,23 @@ export const useCacheService = (repo: MetricRepository) => {
     );
     const data = await res.json();
     await metricMapper.mapCsvToMetricSchema(data.values, repo.insertMetric);
+    state.lastCacheTime = Math.floor(Date.now() / 1000);
   };
 
   const deleteCache = async () => {
     await repo.deleteAllMetrics();
+    state.lastCacheTime = 0;
+  };
+
+  const resetCache = async () => {
+    await deleteCache();
+    await setCache();
   };
 
   return {
     checkCache,
     setCache,
     deleteCache,
+    resetCache,
   };
 };
