@@ -1,11 +1,11 @@
 # Deno Sheet KPI
 
-## Overview
+## Overview
 
 This project has been developed for technical assigment of Datapad.
 To see requirements, [click here](https://github.com/datapadofficial/assessment-backend)
 
-## Data Source
+## Data Source
 
 This project uses Google Sheet as data source. [Click here](https://docs.google.com/spreadsheets/d/1frVzuJCImzpP-zEhSrzuQGV0rUp3mFxV5OfG0z1UZYg/edit?usp=sharing) to see the sheet.
 
@@ -15,7 +15,7 @@ Because this project uses a sheet file and pulling this sheet file from google s
 
 The project will update the cache periodically (this time can be changed from env variables) by going to google sheet. While updating the cache, the server will return the requests with an error.
 
-## How to run
+## How to run
 
 ### Requirements
 
