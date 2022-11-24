@@ -1,7 +1,9 @@
+import { AppVariables } from "../config/variables.enum.ts";
 import { MongoClient } from "https://deno.land/x/mongo@v0.31.1/mod.ts";
+import { getRequiredEnv } from "./../config/env.ts";
 
-const uri = "mongodb://localhost:27017";
-const dbName = "deno-sheet-kpi";
+const uri = getRequiredEnv<string>(AppVariables.MONGO_URI);
+const dbName = getRequiredEnv<string>(AppVariables.MONGO_DB_NAME);
 
 const mongo = new MongoClient();
 
