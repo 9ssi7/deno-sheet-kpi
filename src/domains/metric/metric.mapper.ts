@@ -1,10 +1,7 @@
-import { MetricSchema } from "./metric.schema.ts";
+import type { MetricSchema } from "./metric.schema.ts";
 
 export type MetricMapper = {
-  mapCsvToMetricSchema: (
-    csv: any[],
-    eachCallback: (schema: MetricSchema) => Promise<unknown>
-  ) => Promise<MetricSchema[]>;
+  mapCsvToMetricSchema: (csv: any[]) => MetricSchema[];
 };
 
 const MetricParsers: Record<string, (val: string) => unknown> = {
@@ -13,24 +10,16 @@ const MetricParsers: Record<string, (val: string) => unknown> = {
 };
 
 export const useMetricMapper = (): MetricMapper => {
-  const mapCsvToMetricSchema = (
-    csv: any[],
-    eachCallback: (schema: MetricSchema) => Promise<unknown>
-  ): Promise<MetricSchema[]> => {
-    const promises: Promise<unknown>[] = [];
+  const mapCsvToMetricSchema = (csv: any[]): MetricSchema[] => {
     const [header, ...rows] = csv;
-    const list = rows.map((row: Array<any>) =>
+    return rows.map((row: Array<any>) =>
       row.reduce((acc, value, index) => {
-        if (MetricParsers[header[index]]) {
-          acc[header[index]] = MetricParsers[header[index]](value);
-        } else {
-          acc[header[index]] = value;
-        }
-        promises.push(eachCallback(acc));
+        acc[header[index]] = MetricParsers[header[index]]
+          ? MetricParsers[header[index]](value)
+          : value;
         return acc;
       }, {})
     );
-    return Promise.all(promises).then(() => list);
   };
 
   return {
