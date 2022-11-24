@@ -29,7 +29,7 @@ export const MetricQuery: Record<Metric, QueryCreatorAndMapper> = {
       obj.aggregation = "avg";
       obj.data = {};
       return (data: any) => {
-        obj.data[data._id] = { value: data.avg };
+        obj.data[data._id] = { value: data.avg.toFixed(2) };
         return null;
       };
     },
